@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User Model
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String?  // Password is optional for OAuth users (stored only for local auth)
+  provider  String   // Indicates the provider ("local" or "google")
+  isAdmin   Boolean  @default(false)
+  bookings  Booking[] // Relational field for bookings
+}
+
+// Event Model
+model Event {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  category    String
+  date        DateTime
+  venue       String
+  price       Float
+  image       String?
+  bookings    Booking[]
+}
+
+
+// Booking Model
+model Booking {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  eventId   Int
+  createdAt DateTime @default(now())
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+}
