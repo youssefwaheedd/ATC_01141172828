@@ -15,6 +15,7 @@ import NonAdminRoute from "./components/protectedRoutes/NonAdminRoute";
 import { ThemeProvider } from "./context/ThemeProvider";
 import BookedSuccessfully from "./pages/BookedSuccessfully";
 import MyBookings from "./pages/user/MyBookings";
+import AuthCallbackPage from "./components/auth/AuthCallbackPage";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               </Route>
             </Route>
           </Route>
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route path="/booked-successfully" element={<BookedSuccessfully />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

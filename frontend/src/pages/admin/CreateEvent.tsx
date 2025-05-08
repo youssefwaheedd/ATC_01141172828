@@ -40,7 +40,7 @@ const CreateEvent: React.FC = () => {
 
       if (response.status === 201) {
         setTimeout(() => {
-          navigate("/admin/events");
+          navigate("/admin");
         }, 1000);
       } else {
         toast.error("Error creating event: " + response.statusText);

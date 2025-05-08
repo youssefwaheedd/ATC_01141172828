@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { Lock } from "lucide-react";
 import axios from "axios";
-import { loginUser } from "@/services/auth/authServices";
+import { loginUser as loginUserService } from "@/services/auth/authServices";
+import { useAuth } from "@/context/AuthContext";
 
 export function LoginForm({
   className,
@@ -27,31 +28,42 @@ export function LoginForm({
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(true);
 
+  const navigate = useNavigate();
+  const { login: authContextLogin } = useAuth();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  const handleGoogleSignIn = async () => {
-    window.location.replace(`${API_BASE_URL}/auth/google`);
+  const handleGoogleSignIn = () => {
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     try {
       setLoading(true);
-      await loginUser(email, password);
-
-      window.location.replace(`/`);
-    } catch (err: unknown) {
-      if (err instanceof Error && axios.isAxiosError(err)) {
-        const message =
-          err.response?.data.message || "Login failed. Please try again.";
-        setError(message);
+      const responseData = await loginUserService(email, password);
+      if (responseData.token && responseData.user) {
+        await authContextLogin(responseData.token, responseData.user);
+        navigate("/", { replace: true });
       } else {
-        setError("Login failed. Please try again.");
+        setError(
+          responseData.message || "Login failed: Invalid response from server."
+        );
+      }
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(
+          err.response.data?.message || "Login failed. Please try again."
+        );
+      } else if (err instanceof Error) {
+        setError(err.message || "Login failed. Please try again.");
+      } else {
+        setError("An unexpected error occurred during login.");
       }
     } finally {
       setLoading(false);
@@ -59,18 +71,15 @@ export function LoginForm({
   };
 
   return (
-    <div
-      className={cn("flex flex-col gap-6  p-3 w-full", className)}
-      {...props}
-    >
+    <div className={cn("flex flex-col gap-6 p-3 w-full", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardDescription className="text-center flex  items-center">
-            <Link to={"/"} className="w-1/3  ">
-              <Lock className="h-12 w-12" />{" "}
+          <CardDescription className="text-center flex items-center">
+            <Link to={"/"} className="w-1/3">
+              <Lock className="h-12 w-12" />
             </Link>
-            <span className="w-2/3 flex flex-col items-start  text-center">
-              <span className="font-bold ">Sign in to your account</span>
+            <span className="w-2/3 flex flex-col items-start text-center">
+              <span className="font-bold">Sign in to your account</span>
             </span>
           </CardDescription>
         </CardHeader>
@@ -80,7 +89,7 @@ export function LoginForm({
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
-                  autoComplete="off"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   id="email"
@@ -93,8 +102,9 @@ export function LoginForm({
               </div>
               <div className="grid gap-2">
                 <div className="relative">
+                  <Label htmlFor="password">Password</Label>
                   <Input
-                    autoComplete="off"
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     id="password"
@@ -106,7 +116,10 @@ export function LoginForm({
                   />
                   <button
                     type="button"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    aria-label={
+                      passwordVisible ? "Hide password" : "Show password"
+                    }
+                    className="absolute right-2 top-1/2 mt-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                     onClick={togglePasswordVisibility}
                   >
                     {passwordVisible ? (
@@ -117,7 +130,11 @@ export function LoginForm({
                   </button>
                 </div>
               </div>
-              <Button type="submit" className="w-full cursor-pointer">
+              <Button
+                type="submit"
+                className="w-full cursor-pointer"
+                disabled={loading}
+              >
                 {loading ? "Logging in..." : "Login"}
               </Button>
             </div>
@@ -127,21 +144,31 @@ export function LoginForm({
               </div>
             )}
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
+              Don't have an account?{" "}
               <Link to="/register" className="underline underline-offset-4">
                 Register
               </Link>
             </div>
           </form>
-          <div className="flex justify-center mt-6">
-            <Button
-              onClick={handleGoogleSignIn}
-              variant="outline"
-              className="w-full cursor-pointer"
-            >
-              <FcGoogle />
-            </Button>
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
           </div>
+          <Button
+            onClick={handleGoogleSignIn}
+            variant="outline"
+            className="w-full cursor-pointer"
+            disabled={loading}
+            type="button"
+          >
+            <FcGoogle className="mr-2 h-4 w-4" /> Google
+          </Button>
         </CardContent>
       </Card>
     </div>

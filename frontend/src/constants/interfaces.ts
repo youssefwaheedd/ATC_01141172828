@@ -1,5 +1,12 @@
 import type { LucideIcon } from "lucide-react";
 
+export interface DecodedUser {
+  id: number;
+  email?: string;
+  isAdmin: boolean;
+  iat?: number;
+  exp?: number;
+}
 export interface SidebarItem {
   name: string;
   path: string;

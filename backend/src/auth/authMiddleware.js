@@ -1,15 +1,28 @@
 import jwt from "jsonwebtoken";
 
 const authenticateJWT = (req, res, next) => {
-  const token = req.cookies.token;
+  let token;
+  const authHeader = req.headers.authorization;
 
-  if (!token) return res.status(403).send("Access Denied");
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
+  }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).send("Invalid Token");
-    req.user = user;
+  if (!token) {
+    return res
+      .status(401)
+      .json({ message: "Access Denied. No token provided." });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
     next();
-  });
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token." });
+  }
 };
 
 export default authenticateJWT;
