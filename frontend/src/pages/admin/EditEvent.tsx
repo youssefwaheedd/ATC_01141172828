@@ -5,9 +5,9 @@ import { useAuth } from "@/context/AuthContext";
 import EventForm from "@/components/events/EventForm";
 import { LoaderCircleIcon } from "lucide-react";
 import { type EventFormData } from "@/constants/interfaces";
-import { editEvents, getEventbyId } from "@/services/events/eventsServices";
 import { uploadImageToSupabase } from "@/constants/functions";
 import toast from "react-hot-toast";
+import { editEvent, getEventById } from "@/services/events/eventsServices";
 
 const EditEvent: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +33,7 @@ const EditEvent: React.FC = () => {
         if (!user) {
           throw new Error("Authentication is missing.");
         }
-        const response = await getEventbyId(id);
+        const response = await getEventById(id);
         const event = response.data;
         setInitialEventData({
           name: event.name,
@@ -75,7 +75,7 @@ const EditEvent: React.FC = () => {
         throw new Error("Authentication is missing.");
       }
 
-      const response = await editEvents(payload, id);
+      const response = await editEvent(payload, id);
 
       if (response.status === 200) {
         setTimeout(() => {
