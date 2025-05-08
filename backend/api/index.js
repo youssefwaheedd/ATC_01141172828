@@ -3,11 +3,11 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import passport from "passport";
-import authRoutes from "./src/auth/authRoutes.js";
-import eventsRoutes from "./src/events/eventRoutes.js";
-import bookingRoutes from "./src/bookings/bookingsRoutes.js";
-import errorHandler from "./src/middleware/errorHandler.js";
-import authenticateJWT from "./src/auth/authMiddleware.js";
+import authRoutes from "../src/auth/authRoutes.js";
+import eventsRoutes from "../src/events/eventRoutes.js";
+import bookingRoutes from "../src/bookings/bookingsRoutes.js";
+import errorHandler from "../src/middleware/errorHandler.js";
+import authenticateJWT from "../src/auth/authMiddleware.js";
 
 dotenv.config();
 
@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// Create a handler to wrap Express in a serverless function
+export default (req, res) => {
+  app(req, res);
+};
