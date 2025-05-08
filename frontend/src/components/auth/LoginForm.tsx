@@ -102,7 +102,9 @@ export function LoginForm({
               </div>
               <div className="grid gap-2">
                 <div className="relative">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="mb-2">
+                    Password
+                  </Label>
                   <Input
                     autoComplete="current-password"
                     value={password}
