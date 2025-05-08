@@ -28,7 +28,7 @@ export const uploadImageToSupabase = async (
 export const getAdminSidebarItems = (): SidebarItem[] => [
   {
     name: "Events",
-    path: "/admin/events",
+    path: "/admin",
     icon: CalendarDays,
   },
   {
