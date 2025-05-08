@@ -46,10 +46,8 @@ export const createBooking = async (
 
 export const fetchUserBookings = async (): Promise<UserBooking[]> => {
   try {
-    const response = await apiClient.get<{ bookings: UserBooking[] }>(
-      `/bookings`
-    );
-    return response.data.bookings;
+    const response = await apiClient.get<UserBooking[]>(`/bookings`);
+    return response.data || [];
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
@@ -61,11 +59,11 @@ export const fetchUserBookings = async (): Promise<UserBooking[]> => {
 };
 
 export const deleteUserBooking = async (
-  bookingID: number | string
+  eventId: number | string
 ): Promise<{ message: string }> => {
   try {
     const response = await apiClient.delete<{ message: string }>(
-      `/bookings/${bookingID}`
+      `/bookings/${eventId}`
     );
     return response.data;
   } catch (error: unknown) {

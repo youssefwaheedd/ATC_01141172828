@@ -26,11 +26,6 @@ passport.use(
             data: {
               email,
               provider: "google",
-              name: profile.displayName,
-              profilePicture:
-                profile.photos && profile.photos[0]
-                  ? profile.photos[0].value
-                  : null,
             },
           });
         } else if (user.provider !== "google") {

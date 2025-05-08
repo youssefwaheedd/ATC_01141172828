@@ -45,10 +45,8 @@ const Events: React.FC<EventsComponentProps> = ({ showOnlyBooked = false }) => {
               .map((booking) => booking.event)
               .filter((event): event is EventCardProps => !!event);
           }
-        } catch (bookingError: any) {
-          setError(
-            "Could not load your booking status." + bookingError.message
-          );
+        } catch (err: any) {
+          setError("Could not load your booking status." + err.message);
         }
       }
 
