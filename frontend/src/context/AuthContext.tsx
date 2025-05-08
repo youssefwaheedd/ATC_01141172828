@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/context/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface DecodedUser {
   id: number;
@@ -26,6 +26,9 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<DecodedUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const navigate = useNavigate();
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const fetchUser = async () => {
     try {
@@ -51,7 +54,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       {},
       { withCredentials: true }
     );
+
     setUser(null);
+    navigate("/login", { replace: true });
+    window.location.replace("/login");
   };
 
   return (

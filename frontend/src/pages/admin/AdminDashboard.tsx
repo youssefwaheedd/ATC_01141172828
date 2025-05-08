@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { LoaderCircleIcon } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const AdminDashboard = () => {
-  const { isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const [showLoader, setShowLoader] = useState(true);
 
   useEffect(() => {
@@ -24,6 +24,10 @@ const AdminDashboard = () => {
         </div>
       </div>
     );
+  }
+
+  if (!user || !user.isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   return (
