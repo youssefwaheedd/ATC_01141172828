@@ -34,7 +34,7 @@ const Events: React.FC<EventsComponentProps> = ({ showOnlyBooked = false }) => {
       let eventsToDisplay: EventCardProps[] = [];
       let bookedIdsSet = new Set<number>();
 
-      if (user) {
+      if (user && showOnlyBooked) {
         try {
           const bookings: UserBooking[] = await fetchUserBookings();
           bookedIdsSet = new Set(bookings.map((b) => b.eventId));
