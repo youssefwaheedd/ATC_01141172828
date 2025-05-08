@@ -23,7 +23,7 @@ const EditEvent: React.FC = () => {
 
   useEffect(() => {
     if (!id) {
-      navigate("/admin/events");
+      navigate("/admin");
       return;
     }
 
@@ -46,7 +46,7 @@ const EditEvent: React.FC = () => {
         setOriginalImageURL(event.image || null);
       } catch (err: any) {
         if (err.response?.status === 404) {
-          navigate("/admin/events");
+          navigate("/admin");
         }
       } finally {
         setIsLoading(false);
@@ -79,7 +79,7 @@ const EditEvent: React.FC = () => {
 
       if (response.status === 200) {
         setTimeout(() => {
-          navigate("/admin/events");
+          navigate("/admin");
         }, 1000);
       }
     } catch (err: any) {
