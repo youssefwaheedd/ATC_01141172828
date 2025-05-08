@@ -7,7 +7,6 @@ import authRoutes from "../src/auth/authRoutes.js";
 import eventsRoutes from "../src/events/eventRoutes.js";
 import bookingRoutes from "../src/bookings/bookingsRoutes.js";
 import errorHandler from "../src/middleware/errorHandler.js";
-import authenticateJWT from "../src/auth/authMiddleware.js";
 
 dotenv.config();
 
@@ -29,7 +28,5 @@ app.get("/", (req, res) => {
 
 app.use(errorHandler);
 
-// Create a handler to wrap Express in a serverless function
-export default (req, res) => {
-  app(req, res);
-};
+// Export the Express app directly to work with Vercel serverless functions
+export default app;
