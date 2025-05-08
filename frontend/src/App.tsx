@@ -1,4 +1,3 @@
-// src/App.tsx
 import { Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -34,7 +33,6 @@ function App() {
             <Route element={<AdminOnlyRoute />}>
               <Route path="admin" element={<AdminDashboard />}>
                 <Route index element={<Events />} />
-                <Route path="events" element={<Events />} />
                 <Route path="create-event" element={<CreateEvent />} />
                 <Route path="edit-event/:id" element={<EditEvent />} />
               </Route>
