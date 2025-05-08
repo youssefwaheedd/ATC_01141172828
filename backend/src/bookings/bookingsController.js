@@ -3,8 +3,14 @@ import jwt from "jsonwebtoken";
 
 export const createBooking = async (req, res) => {
   const { eventId } = req.body;
-  const token = req.cookies.token;
+  let token;
+  const authHeader = req.headers.authorization;
 
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
+  }
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
   }
@@ -36,7 +42,14 @@ export const createBooking = async (req, res) => {
 };
 
 export const getUserBookings = async (req, res) => {
-  const token = req.cookies.token;
+  let token;
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
+  }
 
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
@@ -62,7 +75,14 @@ export const getUserBookings = async (req, res) => {
 
 export const deleteBooking = async (req, res) => {
   const { id } = req.params;
-  const token = req.cookies.token;
+  let token;
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
+  }
 
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
