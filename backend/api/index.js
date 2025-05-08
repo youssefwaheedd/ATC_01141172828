@@ -28,5 +28,11 @@ app.get("/", (req, res) => {
 
 app.use(errorHandler);
 
-// Export the Express app directly to work with Vercel serverless functions
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server is running locally on port ${PORT}`);
+  });
+}
+
 export default app;
