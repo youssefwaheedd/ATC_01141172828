@@ -12,7 +12,9 @@ const BookedSuccessfully = () => {
         <p className="text-lg ">We are so excited for you to join us!</p>
       </div>
       <Link to={"/"}>
-        <Button>Explore Events</Button>
+        <Button className="p-5 bg-blue-600 mt-5 cursor-pointer">
+          Explore more events !
+        </Button>
       </Link>
     </div>
   );

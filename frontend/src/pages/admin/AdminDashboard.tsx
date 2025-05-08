@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const delay = setTimeout(() => {
       setShowLoader(false);
-    }, 1000); // 500ms delay for smoother UX
+    }, 1000);
 
     return () => clearTimeout(delay);
   }, []);

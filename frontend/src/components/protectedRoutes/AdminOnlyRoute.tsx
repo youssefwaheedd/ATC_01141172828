@@ -1,11 +1,10 @@
-// src/components/AdminOnlyRoute.tsx
 import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { LoaderCircleIcon } from "lucide-react"; // Or your preferred loader
+import { LoaderCircleIcon } from "lucide-react";
 
 const AdminOnlyRoute: React.FC = () => {
-  const { user, token, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -17,10 +16,6 @@ const AdminOnlyRoute: React.FC = () => {
         </div>
       </div>
     );
-  }
-
-  if (!token) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (!user) {

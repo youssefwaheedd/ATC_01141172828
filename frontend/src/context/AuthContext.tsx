@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/context/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 interface DecodedUser {
   id: number;
@@ -12,88 +12,52 @@ interface DecodedUser {
 }
 
 type AuthContextType = {
-  token: string | null;
   user: DecodedUser | null;
   isLoading: boolean;
-  setToken: (token: string | null) => void;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
-  token: null,
   user: null,
   isLoading: true,
-  setToken: () => {},
   logout: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setTokenState] = useState<string | null>(null);
   const [user, setUser] = useState<DecodedUser | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const processNewToken = (newToken: string | null) => {
-    if (newToken) {
-      localStorage.setItem("authToken", newToken);
-      try {
-        const decodedUser = jwtDecode<DecodedUser>(newToken);
-        setUser(decodedUser);
-        setTokenState(newToken);
-      } catch {
-        localStorage.removeItem("authToken");
-        setUser(null);
-        setTokenState(null);
-      }
-    } else {
-      localStorage.removeItem("authToken");
+  const [isLoading, setIsLoading] = useState(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/auth/me`, {
+        withCredentials: true,
+      });
+      setUser(res.data.user);
+    } catch (err: any) {
       setUser(null);
-      setTokenState(null);
+      throw new Error(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    setIsLoading(true);
-
-    const attemptAutoLogin = () => {
-      let currentToken: string | null = null;
-      const cookieToken = Cookies.get("token");
-
-      if (cookieToken) {
-        currentToken = cookieToken;
-        localStorage.setItem("authToken", cookieToken);
-        Cookies.remove("token");
-      } else {
-        currentToken = localStorage.getItem("authToken");
-      }
-
-      if (currentToken) {
-        processNewToken(currentToken);
-      } else {
-        setTokenState(null);
-        setUser(null);
-      }
-      setIsLoading(false);
-    };
-
-    attemptAutoLogin();
+    fetchUser();
   }, []);
 
-  const logout = () => {
-    console.log("[AuthContext] Logout called.");
-    Cookies.remove("token");
-    processNewToken(null);
-  };
-
-  const contextValue = {
-    token,
-    user,
-    isLoading,
-    setToken: processNewToken,
-    logout,
+  const logout = async () => {
+    await axios.post(
+      `${API_BASE_URL}/auth/logout`,
+      {},
+      { withCredentials: true }
+    );
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, isLoading, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 

@@ -3,16 +3,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import EventForm from "@/components/EventForm";
-import {
-  uploadImageToSupabase,
-  type EventFormData,
-} from "@/constants/sidebar-items";
+import EventForm from "@/components/events/EventForm";
+import { type EventFormData } from "@/constants/interfaces";
 import { createEvent } from "@/services/events/eventsServices";
+import { uploadImageToSupabase } from "@/constants/functions";
+import toast from "react-hot-toast";
 
 const CreateEvent: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { token } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleFormSubmit = async (
@@ -33,21 +32,23 @@ const CreateEvent: React.FC = () => {
         date: new Date(formData.date).toISOString(),
       };
 
-      if (!token) {
+      if (!user) {
         throw new Error("Authentication token is missing.");
       }
 
-      const response = await createEvent(payload, token);
+      const response = await createEvent(payload);
 
       if (response.status === 201) {
         setTimeout(() => {
           navigate("/admin/events");
         }, 1000);
       } else {
-        console.error("Failed to create event:", response.statusText);
+        toast.error("Error creating event: " + response.statusText);
       }
     } catch (err: any) {
-      console.error("Error creating event:", err);
+      toast.error(
+        "Error creating event: " + (err.response?.data?.message || err.message)
+      );
     } finally {
       setIsSubmitting(false);
     }

@@ -8,11 +8,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { Calendar, CoinsIcon, LoaderCircleIcon, Pin, Tags } from "lucide-react";
-import { Badge } from "./ui/badge";
-import AlertDialogComponent from "@/pages/admin/AlertDialogComponent";
-import type { EventCardProps } from "@/constants/sidebar-items"; // Assuming this type is updated
+import { Badge } from "../ui/badge";
+import AlertDialogComponent from "@/components/AlertDialogComponent";
+import type { EventCardProps } from "@/constants/interfaces";
 import { useNavigate } from "react-router-dom";
 import { deleteEvent } from "@/services/events/eventsServices";
 import {
@@ -21,8 +21,6 @@ import {
 } from "@/services/bookings/bookingServices";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-
-const MIN_BUTTON_LOADING_TIME_MS = 1000; // Min time for loader on button
 
 const EventCard = ({
   onDelete,
@@ -34,78 +32,67 @@ const EventCard = ({
   venue,
   price,
   image,
-  isBookedByCurrentUser, // New prop
-  onBookingChanged, // New prop
+  isBookedByCurrentUser,
+  onBookingChanged,
 }: EventCardProps) => {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [actionInProgress, setActionInProgress] = useState(false); // Handles booking/cancelling loading
+  const [isLoading, setIsLoading] = useState(false);
   const [showButtonLoaderMinTime, setShowButtonLoaderMinTime] = useState(false);
 
-  // Effect to ensure loader shows for a minimum time on the button
   useEffect(() => {
     let timerId: NodeJS.Timeout;
-    if (actionInProgress) {
+    if (isLoading) {
       setShowButtonLoaderMinTime(true);
-    } else if (showButtonLoaderMinTime && !actionInProgress) {
+    } else if (showButtonLoaderMinTime && !isLoading) {
       timerId = setTimeout(() => {
         setShowButtonLoaderMinTime(false);
-      }, MIN_BUTTON_LOADING_TIME_MS);
+      }, 1000);
     }
     return () => clearTimeout(timerId);
-  }, [actionInProgress, showButtonLoaderMinTime]);
+  }, [isLoading, showButtonLoaderMinTime]);
 
   const handleBookEvent = async () => {
-    if (!token || !user) {
-      toast.error("Please log in to book.");
+    if (!user) {
       return;
     }
-    setActionInProgress(true);
+    setIsLoading(true);
     try {
       const payload = { eventId: id };
-      await createBooking(payload, token);
+      await createBooking(payload);
       if (onBookingChanged) onBookingChanged();
-      navigate("/booked-successfully"); // Redirect to bookings page after booking
+      navigate("/booked-successfully");
     } catch (error: any) {
-      toast.error(error.message || "Could not book event.");
-      console.error("Booking error:", error);
+      toast.error("Error booking event:", error);
     } finally {
-      setActionInProgress(false);
+      setIsLoading(false);
     }
   };
 
   const handleCancelBooking = async () => {
-    if (!token || !user) {
-      toast.error("Please log in to cancel.");
+    if (!user) {
       return;
     }
-    setActionInProgress(true);
+    setIsLoading(true);
     try {
-      // Assumes backend route DELETE /bookings/event/:eventId exists
-      await deleteUserBooking(id, token);
-      toast.success("Booking canceled successfully!");
+      await deleteUserBooking(id);
       if (onBookingChanged) onBookingChanged();
     } catch (error: any) {
-      toast.error(error.message || "Could not cancel booking.");
-      console.error("Cancel booking error:", error);
+      toast.error("Error canceling booking:", error);
     } finally {
-      setActionInProgress(false);
+      setIsLoading(false);
     }
   };
 
   const handleDeleteEvent = async () => {
-    // ... (existing admin delete logic using toast for feedback) ...
     try {
-      if (!token) {
-        toast.error("Authentication error.");
+      if (!user) {
         return;
       }
-      await deleteEvent(id, token); // Assuming this service handles status/errors
-      toast.success("Event deleted successfully");
+      await deleteEvent(id);
       if (onDelete) onDelete();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete event");
-      console.error("Error deleting event:", error);
+      toast.error("Error deleting event:", error);
     }
   };
 
@@ -113,12 +100,10 @@ const EventCard = ({
     navigate(`/admin/edit-event/${id}`);
   };
 
-  const displayActionInProgress = actionInProgress || showButtonLoaderMinTime;
+  const displayisLoading = isLoading || showButtonLoaderMinTime;
 
   return (
     <Card className="flex flex-col h-full">
-      {" "}
-      {/* Ensure consistent card height */}
       <CardHeader>
         {image && (
           <img
@@ -155,12 +140,10 @@ const EventCard = ({
           </div>
         </div>
       </CardContent>
-      {token && user?.isAdmin && (
-        <CardFooter className="flex gap-3 pt-4 border-t">
+      {user && user?.isAdmin && (
+        <CardFooter className="flex gap-3 pt-4 border-t ">
           <Button
-            variant="outline"
-            size="sm"
-            className="bg-blue-500 hover:bg-blue-600 text-white"
+            className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
             onClick={handleEditEvent}
           >
             Edit
@@ -168,15 +151,15 @@ const EventCard = ({
           <AlertDialogComponent onConfirm={handleDeleteEvent} />
         </CardFooter>
       )}
-      {token && user && !user.isAdmin && (
+      {user && user && !user.isAdmin && (
         <CardFooter className="pt-4 border-t">
           {isBookedByCurrentUser ? (
             <Button
-              className="w-full bg-red-500 hover:bg-red-600 text-white"
+              className="w-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
               onClick={handleCancelBooking}
-              disabled={displayActionInProgress}
+              disabled={displayisLoading}
             >
-              {displayActionInProgress ? (
+              {displayisLoading ? (
                 <div className="flex items-center justify-center">
                   <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />
                   <span>Canceling...</span>
@@ -187,11 +170,11 @@ const EventCard = ({
             </Button>
           ) : (
             <Button
-              className="w-full bg-green-500 hover:bg-green-600 text-white"
+              className="w-full bg-green-500 hover:bg-green-600 text-white cursor-pointer"
               onClick={handleBookEvent}
-              disabled={displayActionInProgress}
+              disabled={displayisLoading}
             >
-              {displayActionInProgress ? (
+              {displayisLoading ? (
                 <div className="flex items-center justify-center">
                   <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />
                   <span>Booking...</span>

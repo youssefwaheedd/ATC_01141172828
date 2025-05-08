@@ -5,13 +5,15 @@ import {
   loginUser,
   googleAuthCallback,
   logoutUser,
+  getCurrentUser,
 } from "./authContoller.js";
 
 const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.get("/logout", logoutUser);
+router.post("/logout", logoutUser);
+router.get("/me", getCurrentUser);
 
 router.get("/google", passport.authenticate("google", { scope: ["email"] }));
 router.get(

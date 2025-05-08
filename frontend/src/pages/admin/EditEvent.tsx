@@ -2,18 +2,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import EventForm from "@/components/EventForm";
+import EventForm from "@/components/events/EventForm";
 import { LoaderCircleIcon } from "lucide-react";
-import {
-  uploadImageToSupabase,
-  type EventFormData,
-} from "@/constants/sidebar-items";
+import { type EventFormData } from "@/constants/interfaces";
 import { editEvents, getEventbyId } from "@/services/events/eventsServices";
+import { uploadImageToSupabase } from "@/constants/functions";
+import toast from "react-hot-toast";
 
 const EditEvent: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { user } = useAuth();
 
   const [initialEventData, setInitialEventData] = useState<
     Partial<EventFormData> | undefined
@@ -31,10 +30,10 @@ const EditEvent: React.FC = () => {
     const fetchEventDetails = async () => {
       setIsLoading(true);
       try {
-        if (!token) {
-          throw new Error("token is missing.");
+        if (!user) {
+          throw new Error("Authentication is missing.");
         }
-        const response = await getEventbyId(id, token);
+        const response = await getEventbyId(id);
         const event = response.data;
         setInitialEventData({
           name: event.name,
@@ -55,7 +54,7 @@ const EditEvent: React.FC = () => {
     };
 
     fetchEventDetails();
-  }, [id, navigate, token]);
+  }, [id, navigate, user]);
 
   const handleFormSubmit = async (
     formData: EventFormData,
@@ -72,11 +71,11 @@ const EditEvent: React.FC = () => {
         image: newImageUrl,
         date: new Date(formData.date).toISOString(),
       };
-      if (!token || !id) {
-        throw new Error("Event ID or token is missing.");
+      if (!user || !id) {
+        throw new Error("Authentication is missing.");
       }
 
-      const response = await editEvents(payload, token, id);
+      const response = await editEvents(payload, id);
 
       if (response.status === 200) {
         setTimeout(() => {
@@ -84,7 +83,9 @@ const EditEvent: React.FC = () => {
         }, 1000);
       }
     } catch (err: any) {
-      console.error("Error updating event:", err);
+      toast.error(
+        "Error updating event: " + (err.response?.data?.message || err.message)
+      );
     } finally {
       setIsSubmitting(false);
     }

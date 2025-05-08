@@ -1,22 +1,24 @@
-// src/components/Navbar.tsx (or wherever you keep your components)
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext"; // Assuming you want auth status for conditional rendering
-import { SidebarTrigger } from "./ui/sidebar";
-import { Theme } from "./Theme";
-import { Button } from "./ui/button";
-import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./ui/sheet";
+import { useAuth } from "@/context/AuthContext";
+import { SidebarTrigger } from "../ui/sidebar";
+import { Theme } from "../Theme";
+import { Button } from "../ui/button";
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Calendar, Menu, X } from "lucide-react";
-import { adminSidebarItems, userSidebarItems } from "@/constants/sidebar-items";
+import {
+  getAdminSidebarItems,
+  getUserSidebarItems,
+} from "@/constants/functions";
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   let items;
   if (user && user.isAdmin) {
-    items = adminSidebarItems;
+    items = getAdminSidebarItems();
   } else {
-    items = userSidebarItems;
+    items = getUserSidebarItems(user?.id);
   }
 
   return (
@@ -57,11 +59,12 @@ const Navbar: React.FC = () => {
               <div className="flex flex-col gap-3 p-4 ">
                 {items?.map((item) => (
                   <Link
-                    className="shadow-md w-full p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 dark:hover:text-white text-black dark:text-white"
+                    className="flex gap-2 items-centershadow-md w-full p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 dark:hover:text-white text-black dark:text-white"
                     key={item?.name}
                     to={item?.path}
                     onClick={() => setIsSheetOpen(false)}
                   >
+                    <item.icon />
                     {item?.name}
                   </Link>
                 ))}
@@ -73,7 +76,6 @@ const Navbar: React.FC = () => {
           <Theme />
           {user ? (
             <>
-              {/* Could add a profile link here: <Link to="/profile">Profile</Link> */}
               <Button
                 onClick={logout}
                 className="hover:text-red-400 cursor-pointer"

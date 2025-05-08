@@ -1,6 +1,5 @@
 import prisma from "../db/prismaClient.js";
 
-// Create an event
 export const createEvent = async (req, res) => {
   const { name, description, category, date, venue, price, image } = req.body;
 
@@ -19,16 +18,14 @@ export const createEvent = async (req, res) => {
 
     res.status(201).json(event);
   } catch (err) {
-    console.error("Event creation error:", err);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
 
 export const getEventById = async (req, res) => {
   const { id } = req.params;
-  const eventId = parseInt(id); // Convert param to integer
+  const eventId = parseInt(id);
 
-  // Validate if eventId is a number
   if (isNaN(eventId)) {
     return res
       .status(400)
@@ -48,12 +45,10 @@ export const getEventById = async (req, res) => {
 
     res.status(200).json(event);
   } catch (err) {
-    console.error("Get event by ID error:", err);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
 
-// Get all events (for users)
 export const getEvents = async (req, res) => {
   try {
     const events = await prisma.event.findMany();
@@ -63,12 +58,10 @@ export const getEvents = async (req, res) => {
     }
     res.status(200).json(events);
   } catch (err) {
-    console.error("Get events error:", err);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
 
-// Update an event (only for admins)
 export const updateEvent = async (req, res) => {
   const { id } = req.params;
   const eventId = parseInt(id);
@@ -95,23 +88,40 @@ export const updateEvent = async (req, res) => {
 
     res.status(200).json(event);
   } catch (err) {
-    console.error("Event update error:", err);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
 
-// Delete an event (only for admins)
 export const deleteEvent = async (req, res) => {
   const { id } = req.params;
+  const eventId = parseInt(id);
+
+  if (isNaN(eventId)) {
+    return res.status(400).json({ message: "Invalid event ID format." });
+  }
 
   try {
-    await prisma.event.delete({
-      where: { id: parseInt(id) },
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.booking.deleteMany({
+        where: { eventId: eventId },
+      });
+
+      const deletedEvent = await tx.event.delete({
+        where: { id: eventId },
+      });
+
+      return deletedEvent;
     });
 
-    res.status(200).json({ message: "Event deleted successfully" });
+    res
+      .status(200)
+      .json({ message: "Event and associated bookings deleted successfully" });
   } catch (err) {
-    console.error("Event delete error:", err);
-    res.status(500).json({ message: "Something went wrong" });
+    if (err.code === "P2025") {
+      return res.status(404).json({ message: "Event not found to delete." });
+    }
+    res
+      .status(500)
+      .json({ message: "Something went wrong while deleting the event" });
   }
 };

@@ -1,21 +1,11 @@
-// src/components/EventForm.tsx
 import React, { useState, useEffect } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { EventFormData } from "@/constants/sidebar-items";
+import type { EventFormData, EventFormProps } from "@/constants/interfaces";
 import { LoaderCircleIcon } from "lucide-react";
-
-interface EventFormProps {
-  initialData?: Partial<EventFormData>;
-  originalImageURL?: string | null;
-  onSubmit: (formData: EventFormData, imageFile?: File | null) => void;
-  isSubmitting: boolean;
-  submitButtonText?: string;
-  formTitle?: string;
-}
 
 const EventForm: React.FC<EventFormProps> = ({
   initialData,
@@ -39,7 +29,7 @@ const EventForm: React.FC<EventFormProps> = ({
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isSubmitting) {
-      setIsDisplayingProcessingLoader(true); // Show loader immediately when submission starts
+      setIsDisplayingProcessingLoader(true);
     } else if (isDisplayingProcessingLoader && !isSubmitting) {
       timer = setTimeout(() => {
         setIsDisplayingProcessingLoader(false);
@@ -47,7 +37,7 @@ const EventForm: React.FC<EventFormProps> = ({
     }
 
     return () => {
-      clearTimeout(timer); // Cleanup timer if component unmounts or dependencies change
+      clearTimeout(timer);
     };
   }, [isSubmitting, isDisplayingProcessingLoader]);
 
@@ -99,6 +89,7 @@ const EventForm: React.FC<EventFormProps> = ({
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            placeholder="Enter event name..."
             required
           />
         </div>
@@ -108,6 +99,7 @@ const EventForm: React.FC<EventFormProps> = ({
             id="venue"
             value={venue}
             onChange={(e) => setVenue(e.target.value)}
+            placeholder="Enter venue..."
             required
           />
         </div>
@@ -117,7 +109,7 @@ const EventForm: React.FC<EventFormProps> = ({
             className="dark:bg-white dark:text-black"
             id="date"
             type="date"
-            value={date} // Expects YYYY-MM-DD
+            value={date}
             onChange={(e) => setDate(e.target.value)}
             required
           />
@@ -129,6 +121,7 @@ const EventForm: React.FC<EventFormProps> = ({
             type="number"
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
+            placeholder="Enter price..."
             required
             min="0"
           />
@@ -139,6 +132,7 @@ const EventForm: React.FC<EventFormProps> = ({
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            placeholder="Enter category..."
             required
           />
         </div>
@@ -148,11 +142,14 @@ const EventForm: React.FC<EventFormProps> = ({
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            className="h-20 resize-none overflow-y-auto overflow-x-hidden break-all"
+            placeholder="Enter event description..."
+            rows={2}
             required
           />
         </div>
         <div className="flex flex-col gap-2">
-          <Label htmlFor="imageFile">Event Image</Label>
+          <Label htmlFor="imageFile">Event Image (JPG)</Label>
           {imagePreviewUrl && (
             <div className="my-2">
               <img
@@ -163,7 +160,7 @@ const EventForm: React.FC<EventFormProps> = ({
             </div>
           )}
           <Input
-            id="imageFile" // Changed id to avoid conflict if 'image' is a field in EventFormData
+            id="imageFile"
             type="file"
             accept="image/*"
             onChange={handleImageFileChange}

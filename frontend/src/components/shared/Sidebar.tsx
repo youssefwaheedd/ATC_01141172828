@@ -8,17 +8,20 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import {
+  getAdminSidebarItems,
+  getUserSidebarItems,
+} from "@/constants/functions";
 import { useAuth } from "@/context/AuthContext";
-import { adminSidebarItems, userSidebarItems } from "@/constants/sidebar-items";
 import { Calendar } from "lucide-react";
 
 export function AppSidebar() {
   const { user } = useAuth();
   let items;
   if (user && user.isAdmin) {
-    items = adminSidebarItems;
+    items = getAdminSidebarItems();
   } else {
-    items = userSidebarItems;
+    items = getUserSidebarItems(user?.id);
   }
   return (
     <Sidebar>
@@ -32,7 +35,10 @@ export function AppSidebar() {
               {items?.map((item) => (
                 <SidebarMenuItem className="p-1" key={item?.name}>
                   <SidebarMenuButton className="shadow-md w-full p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 dark:hover:text-white text-black dark:text-white">
-                    <a href={item?.path}>
+                    <a
+                      href={item?.path}
+                      className=" w-full flex items-center gap-2"
+                    >
                       <item.icon />
                       <span>{item?.name}</span>
                     </a>

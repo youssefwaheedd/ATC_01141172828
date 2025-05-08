@@ -14,6 +14,7 @@ import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { LockIcon } from "lucide-react";
 import axios from "axios";
+import { registerUser } from "@/services/auth/authServices";
 export function RegisterForm({
   className,
   ...props
@@ -26,6 +27,9 @@ export function RegisterForm({
   const [error, setError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
@@ -35,7 +39,7 @@ export function RegisterForm({
   };
 
   const handleGoogleSignIn = async () => {
-    window.location.replace("http://localhost:3000/auth/google");
+    window.location.replace(`${API_BASE_URL}/auth/google`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,25 +53,10 @@ export function RegisterForm({
     }
 
     try {
-      setLoading(true); // Set loading state to true
-      const response = await axios.post(
-        "http://localhost:3000/auth/register",
-        {
-          email,
-          password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      setLoading(true);
+      await registerUser(email, password);
 
-      // Handle the response, e.g., saving the token
-      const token = await response.data.token;
-      localStorage.setItem("authToken", token); // Store the token in localStorage
-      // Navigate to the dashboard or home page
-      window.location.replace("/"); // Redirect to the home page
+      window.location.replace(`/`);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         const message =

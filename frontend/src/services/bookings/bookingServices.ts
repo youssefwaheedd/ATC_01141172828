@@ -1,29 +1,19 @@
-// src/services/bookings/bookingService.ts
-import type {
-  BookingPayload,
-  BookingResponse,
-} from "@/constants/sidebar-items";
+import type { BookingPayload, BookingResponse } from "@/constants/interfaces";
 import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-// Create a new booking
 export const createBooking = async (
-  payload: BookingPayload,
-  token: string
+  payload: BookingPayload
 ): Promise<BookingResponse> => {
   try {
     const response = await axios.post<BookingResponse>(
       `${API_BASE_URL}/bookings`,
       payload,
       {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true,
       }
     );
-    return response.data; // Axios nests the response data under 'data'
+    return response.data;
   } catch (error: unknown) {
-    // Enhance error handling to throw a more informative error
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
         error.response.data.message || "Failed to create booking"
@@ -33,13 +23,10 @@ export const createBooking = async (
   }
 };
 
-export const fetchUserBookings = async (token: string) => {
+export const fetchUserBookings = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/bookings`, {
-      // Assuming this is your endpoint
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      withCredentials: true,
     });
     return response.data;
   } catch (error: unknown) {
@@ -52,19 +39,11 @@ export const fetchUserBookings = async (token: string) => {
   }
 };
 
-export const deleteUserBooking = async (
-  bookingId: number | string,
-  token: string
-) => {
+export const deleteUserBooking = async (eventID: number | string) => {
   try {
-    const response = await axios.delete(
-      `${API_BASE_URL}/bookings/${bookingId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.delete(`${API_BASE_URL}/bookings/${eventID}`, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response) {

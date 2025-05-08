@@ -6,16 +6,16 @@ import Home from "./pages/Home";
 import { AuthProvider } from "./context/AuthContext";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CreateEvent from "./pages/admin/CreateEvent";
-import Events from "./components/Events";
+import Events from "./components/events/Events";
 import EditEvent from "./pages/admin/EditEvent";
 
 import Layout from "./Layout";
 
-// Import the new protected route components
-import AdminOnlyRoute from "./components/AdminOnlyRoute";
-import NonAdminRoute from "./components/NonAdminRoute";
+import AdminOnlyRoute from "./components/protectedRoutes/AdminOnlyRoute";
+import NonAdminRoute from "./components/protectedRoutes/NonAdminRoute";
 import { ThemeProvider } from "./context/ThemeProvider";
 import BookedSuccessfully from "./pages/BookedSuccessfully";
+import MyBookings from "./pages/user/MyBookings";
 
 function App() {
   return (
@@ -25,6 +25,10 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route element={<NonAdminRoute />}>
               <Route index element={<Home />} />
+            </Route>
+
+            <Route element={<NonAdminRoute />}>
+              <Route path="my-bookings" element={<MyBookings />} />
             </Route>
 
             <Route element={<AdminOnlyRoute />}>

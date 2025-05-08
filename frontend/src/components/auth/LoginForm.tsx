@@ -14,6 +14,7 @@ import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { Lock } from "lucide-react";
 import axios from "axios";
+import { loginUser } from "@/services/auth/authServices";
 
 export function LoginForm({
   className,
@@ -26,38 +27,34 @@ export function LoginForm({
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(true);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
   const handleGoogleSignIn = async () => {
-    window.location.replace("http://localhost:3000/auth/google");
+    window.location.replace(`${API_BASE_URL}/auth/google`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      setLoading(true); // Set loading state to true
-      const response = await axios.post("http://localhost:3000/auth/login", {
-        email,
-        password,
-      });
+      setLoading(true);
+      await loginUser(email, password);
 
-      // Handle the response, e.g., saving the token
-      const token = response.data.token;
-      localStorage.setItem("authToken", token); // Store the token in localStorage
-      window.location.replace("/"); // Redirect to the home page
+      window.location.replace(`/`);
     } catch (err: unknown) {
       if (err instanceof Error && axios.isAxiosError(err)) {
         const message =
-          err.response?.data?.message || "Login failed. Please try again.";
+          err.response?.data.message || "Login failed. Please try again.";
         setError(message);
       } else {
         setError("Login failed. Please try again.");
       }
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
@@ -136,7 +133,6 @@ export function LoginForm({
               </Link>
             </div>
           </form>
-          {/* Google Login Button placed outside the form */}
           <div className="flex justify-center mt-6">
             <Button
               onClick={handleGoogleSignIn}
