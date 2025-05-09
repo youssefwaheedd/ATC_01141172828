@@ -28,7 +28,7 @@ This is a full-stack event booking system built as part of a technical task. The
 
 ```bash
 git clone https://github.com/youssefwaheedd/booking-system.git
-cd Areeb-Task
+cd booking-system
 ```
 
 ---
