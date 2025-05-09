@@ -1,12 +1,12 @@
-# 🎟️ Event Booking System
+# Event Booking System
 
 This is a full-stack event booking system built as part of a technical task. The system allows users to browse, book, and manage event reservations, while admins can manage all events through an integrated admin panel.
 
-> ✅ Minor change made: Instead of labeling an event as "Booked," users now have the ability to cancel the booking if already booked.
+> Minor change made: Instead of labeling an event as "Booked," users now have the ability to cancel the booking if already booked.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
@@ -20,15 +20,15 @@ This is a full-stack event booking system built as part of a technical task. The
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/youssefwaheedd/booking-system.git
-cd Areeb-Task
+git clone https://github.com/youssefwaheedd/ATC_01141172828.git
+cd ATC_01141172828
 ```
 
 ---
@@ -59,23 +59,32 @@ npm run dev                # Start frontend development server
 
 ---
 
-## 🛠 Features
+### Admin Login Credentials
 
-### ✅ User Functionality
+To test the admin dashboard, log in using:
+
+- **Email**: `admin@example.com`  
+- **Password**: `admin`
+
+---
+
+## Features
+
+### User Functionality
 
 - User registration and login
 - Browse event listings
-- Book and **cancel** tickets
+- Book and cancel tickets
 - View event details
 
-### ✅ Admin Functionality
+### Admin Functionality
 
 - Create, update, delete events
 - Admin panel UI (protected by role-based access)
 
 ---
 
-## 🎨 UI Highlights
+## UI Highlights
 
 - Clean, responsive web layout
 - Tailwind CSS for styling
@@ -84,7 +93,7 @@ npm run dev                # Start frontend development server
 
 ---
 
-## 🌐 Tech Stack
+## Tech Stack
 
 - **Frontend**: React, TypeScript, Tailwind CSS, Shadcn/ui
 - **Backend**: Node.js, Express, Prisma ORM, PostgreSQL
@@ -93,7 +102,7 @@ npm run dev                # Start frontend development server
 
 ---
 
-## 📦 Deployment
+## Deployment
 
 The app is built with production readiness and can be deployed to services like:
 
@@ -102,6 +111,6 @@ The app is built with production readiness and can be deployed to services like:
 
 ---
 
-## 📄 License
+## License
 
 This project is provided for technical evaluation purposes only.
