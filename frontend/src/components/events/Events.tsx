@@ -20,12 +20,10 @@ const Events: React.FC<EventsComponentProps> = ({ showOnlyBooked = false }) => {
     new Set()
   );
   const [isLoading, setIsLoading] = useState(true);
-  const [showInitialLoader, setShowInitialLoader] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    setShowInitialLoader(true);
     setError(null);
     setEvents([]);
     setUserBookedEventIds(new Set());
@@ -68,9 +66,6 @@ const Events: React.FC<EventsComponentProps> = ({ showOnlyBooked = false }) => {
       setEvents([]);
     } finally {
       setIsLoading(false);
-      setTimeout(() => {
-        setShowInitialLoader(false);
-      }, 500);
     }
   }, [showOnlyBooked, user]);
 
@@ -86,7 +81,7 @@ const Events: React.FC<EventsComponentProps> = ({ showOnlyBooked = false }) => {
     loadData();
   };
 
-  if (isLoading || showInitialLoader) {
+  if (isLoading) {
     return (
       <div className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2 text-2xl text-foreground">
