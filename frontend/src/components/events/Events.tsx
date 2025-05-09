@@ -70,7 +70,7 @@ const Events: React.FC<EventsComponentProps> = ({ showOnlyBooked = false }) => {
       setIsLoading(false);
       setTimeout(() => {
         setShowInitialLoader(false);
-      }, 1000);
+      }, 500);
     }
   }, [showOnlyBooked, user]);
 

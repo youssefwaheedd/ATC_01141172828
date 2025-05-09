@@ -19,7 +19,7 @@ import {
   createBooking,
   deleteUserBooking,
 } from "@/services/bookings/bookingServices";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 
 const EventCard = ({
@@ -38,19 +38,6 @@ const EventCard = ({
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [showButtonLoaderMinTime, setShowButtonLoaderMinTime] = useState(false);
-
-  useEffect(() => {
-    let timerId: NodeJS.Timeout;
-    if (isLoading) {
-      setShowButtonLoaderMinTime(true);
-    } else if (showButtonLoaderMinTime && !isLoading) {
-      timerId = setTimeout(() => {
-        setShowButtonLoaderMinTime(false);
-      }, 1000);
-    }
-    return () => clearTimeout(timerId);
-  }, [isLoading, showButtonLoaderMinTime]);
 
   const handleBookEvent = async () => {
     if (!user) {
@@ -100,7 +87,7 @@ const EventCard = ({
     navigate(`/admin/edit-event/${id}`);
   };
 
-  const displayisLoading = isLoading || showButtonLoaderMinTime;
+  const displayisLoading = isLoading;
 
   return (
     <Card className="flex flex-col h-full">

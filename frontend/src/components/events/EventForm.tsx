@@ -33,7 +33,7 @@ const EventForm: React.FC<EventFormProps> = ({
     } else if (isDisplayingProcessingLoader && !isSubmitting) {
       timer = setTimeout(() => {
         setIsDisplayingProcessingLoader(false);
-      }, 3000);
+      }, 1000);
     }
 
     return () => {
