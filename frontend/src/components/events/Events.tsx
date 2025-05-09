@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState, useCallback } from "react";
-import axios from "axios";
 import EventCard from "./EventCard";
 import { LoaderCircleIcon } from "lucide-react";
 import type {
@@ -25,44 +24,41 @@ const Events: React.FC<EventsComponentProps> = ({ showOnlyBooked = false }) => {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    setEvents([]);
-    setUserBookedEventIds(new Set());
 
     try {
-      let eventsToDisplay: EventCardProps[] = [];
-      let bookedIdsSet = new Set<number>();
+      let [allEvents, bookings]: [EventCardProps[], UserBooking[]] = [[], []];
 
       if (user) {
-        try {
-          const bookings: UserBooking[] = await fetchUserBookings();
-          bookedIdsSet = new Set(bookings.map((b) => b.eventId));
-          setUserBookedEventIds(bookedIdsSet);
+        const bookingsPromise = fetchUserBookings();
+        const eventsPromise = !showOnlyBooked
+          ? fetchAllEvents()
+          : Promise.resolve([]);
 
-          if (showOnlyBooked) {
-            eventsToDisplay = bookings
-              .map((booking) => booking.event)
-              .filter((event): event is EventCardProps => !!event);
-          }
-        } catch (err: any) {
-          setError("Could not load your booking status." + err.message);
-        }
-      }
+        const [userBookings, allFetchedEvents] = await Promise.all([
+          bookingsPromise,
+          eventsPromise,
+        ]);
 
-      if (!showOnlyBooked) {
-        try {
-          eventsToDisplay = await fetchAllEvents();
-        } catch (eventError: any) {
-          if (
-            axios.isAxiosError(eventError) &&
-            eventError.response?.status === 404
-          ) {
-            eventsToDisplay = [];
-          }
+        bookings = userBookings;
+        allEvents = allFetchedEvents;
+
+        const bookedIds = new Set(bookings.map((b) => b.eventId));
+        setUserBookedEventIds(bookedIds);
+
+        if (showOnlyBooked) {
+          const bookedEvents = bookings
+            .map((booking) => booking.event)
+            .filter((event): event is EventCardProps => !!event);
+          setEvents(bookedEvents);
+        } else {
+          setEvents(allEvents);
         }
+      } else {
+        const publicEvents = await fetchAllEvents();
+        setEvents(publicEvents);
       }
-      setEvents(eventsToDisplay);
     } catch (error: any) {
-      setError("An unexpected error occurred." + error.message);
+      setError("An unexpected error occurred: " + error.message);
       setEvents([]);
     } finally {
       setIsLoading(false);
